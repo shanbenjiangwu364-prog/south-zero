@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プレイする — SOUTH ZERO</title>
+<meta name="description" content="SOUTH ZEROをブラウザで今すぐプレイ。核戦争後の世界を生き延びる船上サバイバルゲーム。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a1a;
+  --ink2: #4a4a4a;
+  --ink3: #8a8a8a;
+  --paper: #f5f2eb;
+  --paper2: #edeae0;
+  --accent: #c0392b;
+  --border: rgba(26,26,26,0.12);
+  --mono: 'JetBrains Mono', monospace;
+  --serif: 'DM Serif Display', serif;
+  --sans: 'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0a0a0a;
+  color: var(--paper);
+  font-family: var(--sans);
+  font-weight: 300;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.game-nav {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1.5rem;
+  background: rgba(10,10,10,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  z-index: 10;
+}
+.game-nav-logo {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+}
+.game-nav-back {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.4);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.game-nav-back:hover { color: rgba(255,255,255,0.8); }
+.game-frame {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+</style>
+</head>
+<body>
+<nav class="game-nav">
+  <a href="index.html" class="game-nav-back">← トップへ戻る</a>
+  <span class="game-nav-logo">☢ SOUTH ZERO</span>
+  <a href="devlog.html" class="game-nav-back">開発記録 →</a>
+</nav>
+<div class="game-frame">
+  <iframe src="southzero.html" title="SOUTH ZERO ゲーム"></iframe>
+</div>
+</body>
+</html>
