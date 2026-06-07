@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>開発記録 — SOUTH ZERO</title>
+<meta name="description" content="ブラウザゲーム「SOUTH ZERO」の開発記録。設計・実装・デザインの過程を公開しています。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a1a;
+  --ink2: #4a4a4a;
+  --ink3: #8a8a8a;
+  --paper: #f5f2eb;
+  --paper2: #edeae0;
+  --accent: #c0392b;
+  --border: rgba(26,26,26,0.12);
+  --mono: 'JetBrains Mono', monospace;
+  --serif: 'DM Serif Display', serif;
+  --sans: 'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.7;
+}
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 2.5rem;
+  background: rgba(245,242,235,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 13px;
+  color: var(--ink2);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--accent); }
+
+.page-header {
+  padding: 9rem 2.5rem 3rem;
+  max-width: 800px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--border);
+}
+.page-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.page-tag::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+}
+.page-header h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+.page-header p {
+  font-size: 0.95rem;
+  color: var(--ink2);
+  max-width: 480px;
+}
+
+.posts-section {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 2.5rem 8rem;
+}
+
+/* 記事カード */
+.post-card {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 2rem;
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: padding-left 0.2s;
+}
+.post-card:hover { padding-left: 0.5rem; }
+.post-meta {
+  padding-top: 0.15rem;
+}
+.post-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink3);
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.post-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--border);
+  letter-spacing: 0.1em;
+}
+.post-body h2 {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.3;
+  margin-bottom: 0.7rem;
+  transition: color 0.2s;
+}
+.post-card:hover .post-body h2 { color: var(--accent); }
+.post-body p {
+  font-size: 0.9rem;
+  color: var(--ink2);
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.post-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--border);
+  color: var(--ink3);
+}
+
+/* 空状態 */
+.empty-state {
+  padding: 5rem 0;
+  text-align: center;
+}
+.empty-state-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 1.5rem;
+  opacity: 0.3;
+}
+.empty-state p {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--ink3);
+  line-height: 2;
+}
+
+/* note誘導 */
+.note-banner {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 3rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.note-banner-text {
+  font-size: 0.9rem;
+  color: var(--ink2);
+}
+.note-banner-text strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+.btn-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.btn-note:hover { background: var(--accent); }
+
+footer {
+  padding: 2rem 2.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink3);
+}
+
+@media (max-width: 640px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { gap: 1.2rem; }
+  .page-header { padding: 7rem 1.5rem 2.5rem; }
+  .posts-section { padding: 0 1.5rem 5rem; }
+  .post-card { grid-template-columns: 1fr; gap: 0.5rem; }
+  .note-banner { flex-direction: column; }
+  footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">☢ SOUTH ZERO</a>
+  <ul class="nav-links">
+    <li><a href="game.html">プレイする</a></li>
+    <li><a href="devlog.html" style="color:var(--ink);">開発記録</a></li>
+    <li><a href="index.html#about">制作者</a></li>
+  </ul>
+</nav>
+
+<header class="page-header">
+  <div class="page-tag">Dev Log</div>
+  <h1>開発記録</h1>
+  <p>SOUTH ZEROを作りながら、気づいたこと・詰まったこと・解決したことを書いています。</p>
+</header>
+
+<main class="posts-section">
+
+  <div class="note-banner">
+    <div class="note-banner-text">
+      <strong>noteでも発信中</strong>
+      より詳しい開発の話や、ゲーム制作のノウハウを書いています。
+    </div>
+    <a href="https://note.com/" class="btn-note" target="_blank">noteを読む →</a>
+  </div>
+
+  <!-- 記事リスト（ここに追記していく） -->
+  <div id="posts-list"></div>
+
+</main>
+
+<footer>
+  <span>☢ SOUTH ZERO — Post-Nuclear Survival Game</span>
+  <span>© 2025 あなたの名前</span>
+</footer>
+
+<script>
+// 記事データ（新しいものを上に追加していく）
+const posts = [
+  // 例:
+  // {
+  //   date: '2025-01-15',
+  //   title: 'サイトを公開しました',
+  //   excerpt: 'ゲームを作りながらポートフォリオサイトを公開するまでの話。',
+  //   tags: ['サイト制作', '振り返り'],
+  //   url: '#'
+  // },
+];
+
+const container = document.getElementById('posts-list');
+
+if (posts.length === 0) {
+  container.innerHTML = `
+    <div class="empty-state">
+      <span class="empty-state-icon">📝</span>
+      <p>// 最初の記事を準備中...<br>もうすぐ公開します。</p>
+    </div>
+  `;
+} else {
+  container.innerHTML = posts.map((p, i) => `
+    <a class="post-card" href="${p.url}">
+      <div class="post-meta">
+        <span class="post-date">${p.date}</span>
+        <span class="post-num">#${String(posts.length - i).padStart(2, '0')}</span>
+      </div>
+      <div class="post-body">
+        <h2>${p.title}</h2>
+        <p>${p.excerpt}</p>
+        <div class="post-tags">
+          ${p.tags.map(t => `<span class="post-tag">${t}</span>`).join('')}
+        </div>
+      </div>
+    </a>
+  `).join('');
+}
+</script>
+
+</body>
+</html>
